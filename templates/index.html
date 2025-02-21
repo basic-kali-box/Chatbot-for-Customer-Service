@@ -37,24 +37,45 @@
             addMessage(message, true);
             input.value = '';
 
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message })
-            });
-            const data = await response.json();
-            addMessage(data.response);
+            try {
+                const fetchResponse = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                const rawText = await fetchResponse.text();  // Get raw response text
+                console.log('Raw server response:', rawText);
+                const data = JSON.parse(rawText);  // Parse it manually
+                console.log('Parsed JSON:', data);
+                // Extract 'response' field or fallback to raw text
+                const botMessage = data.response || 'Error: No response field in JSON';
+                console.log('Extracted message:', botMessage);
+                addMessage(botMessage);
+            } catch (error) {
+                console.error('Fetch error:', error);
+                addMessage('Sorry, something went wrong!');
+            }
         }
 
         async function resetChat() {
-            const response = await fetch('/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: 'reset' })
-            });
-            const data = await response.json();
-            document.getElementById('chat-box').innerHTML = '';
-            addMessage(data.response);
+            try {
+                const fetchResponse = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'reset' })
+                });
+                const rawText = await fetchResponse.text();
+                console.log('Raw reset response:', rawText);
+                const data = JSON.parse(rawText);
+                console.log('Parsed reset JSON:', data);
+                document.getElementById('chat-box').innerHTML = '';
+                const botMessage = data.response || 'Error: No response field in JSON';
+                console.log('Extracted reset message:', botMessage);
+                addMessage(botMessage);
+            } catch (error) {
+                console.error('Fetch error:', error);
+                addMessage('Sorry, something went wrong!');
+            }
         }
 
         document.getElementById('user-input').addEventListener('keypress', function(e) {

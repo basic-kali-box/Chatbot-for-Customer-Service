@@ -11,12 +11,19 @@ def index():
 @app.route('/chat', methods=['POST'])
 def chat():
     user_message = request.json.get('message')
+    print(f"Received user message: {user_message}")
     if user_message.lower() == 'reset':
-        chatbot.reset()
-        return jsonify({'response': 'Booking reset. How can I help you with your new booking?'})
+        response = chatbot.reset()
+        print(f"Reset response (raw): {response}")
+        json_response = {'response': response}
+        print(f"Reset JSON response: {json_response}")
+        return jsonify(json_response)
     
     response = chatbot.process_message(user_message)
-    return jsonify({'response': response})
+    print(f"Chat response (raw): {response}")
+    json_response = {'response': response}
+    print(f"Chat JSON response: {json_response}")
+    return jsonify(json_response)
 
 if __name__ == '__main__':
     app.run(debug=True)
