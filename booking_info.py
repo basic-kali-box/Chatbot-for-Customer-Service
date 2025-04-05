@@ -1,6 +1,7 @@
+import os
+from dotenv import load_dotenv
 import mysql.connector
-from mysql.connector import Error
-
+load_dotenv()
 def create_connection(host_name, user_name, user_password, db_name):
     connection = None
     try:
@@ -11,12 +12,17 @@ def create_connection(host_name, user_name, user_password, db_name):
             database=db_name
         )
         print("Connection to MySQL DB successful")
-    except Error as e:
+    except mysql.connector.Error as e:
         print(f"The error '{e}' occurred")
     return connection
 
 def add_to_db(city, check_in, check_out, guests):
-    connection = create_connection("localhost", "mehdi", "mehdi_password", "HotelCheckInSystem")
+    connection = create_connection(
+        "localhost",
+        os.getenv("DB_USER", "mehdi"),
+        os.getenv("DB_PASSWORD", "mehdi_password"),
+        "HotelCheckInSystem"
+    )
     if connection:
         try:
             query = "INSERT INTO booking_infos (city, check_in, check_out, guests) VALUES (%s, %s, %s, %s)"
@@ -26,7 +32,7 @@ def add_to_db(city, check_in, check_out, guests):
             connection.commit()
             print("Booking information added successfully")
             return True  # Explicitly return True on success
-        except Error as e:
+        except mysql.connector.Error as e:
             print(f"Failed to add booking: {e}")
             return False  # Return False on failure
         finally:

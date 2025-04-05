@@ -20,11 +20,20 @@
     </div>
 
     <script>
+        // Function to format text: replace **text** with <strong>text</strong> and \n with <br>
+        function formatMessage(message) {
+            // First replace newlines with <br>
+            let formatted = message.replace(/\n/g, '<br>');
+            // Then apply bold formatting
+            formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            return formatted;
+        }
+
         function addMessage(message, isUser = false) {
             const chatBox = document.getElementById('chat-box');
             const messageDiv = document.createElement('div');
             messageDiv.className = isUser ? 'user-message' : 'bot-message';
-            messageDiv.textContent = message;
+            messageDiv.innerHTML = isUser ? message : formatMessage(message);
             chatBox.appendChild(messageDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
         }
@@ -45,8 +54,8 @@
                 });
                 const data = await response.json();
                 console.log('Server response:', data);
-                if (data && data.response) {
-                    addMessage(data.response);
+                if (data && data.responses) {
+                    data.responses.forEach(resp => addMessage(resp));
                 } else {
                     addMessage('Error: Invalid response from server');
                 }
@@ -66,8 +75,8 @@
                 const data = await response.json();
                 console.log('Reset response:', data);
                 document.getElementById('chat-box').innerHTML = '';
-                if (data && data.response) {
-                    addMessage(data.response);
+                if (data && data.responses) {
+                    data.responses.forEach(resp => addMessage(resp));
                 } else {
                     addMessage('Error: Invalid response from server');
                 }
